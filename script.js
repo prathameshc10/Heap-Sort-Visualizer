@@ -1,5 +1,9 @@
 let array = [];
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function createArray() {
     array = [];
     for (let i = 0; i < 20; i++) {
@@ -8,18 +12,23 @@ function createArray() {
     displayArray();
 }
 
-function displayArray() {
+function displayArray(highlightedIndices = []) {
     const container = document.getElementById('array-container');
     container.innerHTML = '';
-    for (let value of array) {
+    for (let i = 0; i < array.length; i++) {
         const bar = document.createElement('div');
         bar.classList.add('bar');
-        bar.style.height = value * 3 + "px";
+        bar.style.height = array[i] * 3 + "px";
+        if (highlightedIndices.includes(i)) {
+            bar.style.backgroundColor = 'red';
+        } else {
+            bar.style.backgroundColor = 'lightgreen';
+        }
         container.appendChild(bar);
     }
 }
 
-function heapify(arr, n, i) {
+async function heapify(arr, n, i) {
     let largest = i;
     let l = 2 * i + 1;
     let r = 2 * i + 2;
@@ -29,26 +38,29 @@ function heapify(arr, n, i) {
 
     if (largest !== i) {
         [arr[i], arr[largest]] = [arr[largest], arr[i]];
-        heapify(arr, n, largest);
+        displayArray([i, largest]);
+        await sleep(300);
+        await heapify(arr, n, largest);
     }
 }
 
-function heapSort(arr) {
+async function heapSort(arr) {
     let n = arr.length;
 
     for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
-        heapify(arr, n, i);
+        await heapify(arr, n, i);
     }
 
     for (let i = n - 1; i > 0; i--) {
         [arr[0], arr[i]] = [arr[i], arr[0]];
-        heapify(arr, i, 0);
-        displayArray();
+        displayArray([0, i]);
+        await sleep(300);
+        await heapify(arr, i, 0);
     }
 }
 
-function sortArray() {
-    heapSort(array);
+async function sortArray() {
+    await heapSort(array);
 }
 
 // Create initial array
